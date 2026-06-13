@@ -3,7 +3,7 @@ redis:
   address: redis:6379
 rtc:
   port_range_start: 50000
-  port_range_end: 50200
+  port_range_end: 50020
   use_external_ip: false
 logging:
   level: info

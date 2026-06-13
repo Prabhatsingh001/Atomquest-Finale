@@ -38,7 +38,7 @@ services:
     ports:
       - "7880:7880"     # HTTP/WebSocket
       - "7881:7881"     # RTC TCP
-      - "50000-50200:50000-50200/udp"  # WebRTC UDP
+      - "50000-50020:50000-50020/udp"  # WebRTC UDP
     env_file:
       - .env
     environment:
