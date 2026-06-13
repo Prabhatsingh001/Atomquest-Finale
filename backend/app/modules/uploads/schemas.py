@@ -1,7 +1,14 @@
-from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
+from pydantic import BaseModel, ConfigDict
+
+
 class FileResponse(BaseModel):
+    """Fileresponse model or schema representation.
+    
+        Attributes:
+            None specified explicitly.
+    """
     id: int
     session_id: int
     uploaded_by: int

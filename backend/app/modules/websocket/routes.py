@@ -1,12 +1,14 @@
 import json
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, status
-from app.db.database import SessionLocal
+
+from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect, status
+
 from app.core.security import decode_access_token
+from app.db.database import SessionLocal
 from app.modules.auth.models import User
-from app.modules.websocket.manager import manager
-from app.modules.websocket.handlers import handle_message
 from app.modules.participants import repositories as participant_repos
-from app.tasks.presence_tasks import set_online, set_offline
+from app.modules.websocket.handlers import handle_message
+from app.modules.websocket.manager import manager
+from app.tasks.presence_tasks import set_offline, set_online
 
 router = APIRouter(prefix="/ws", tags=["WebSocket"])
 

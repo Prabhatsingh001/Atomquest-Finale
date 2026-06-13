@@ -1,13 +1,23 @@
 import os
-import uuid
 import shutil
-from fastapi import UploadFile, HTTPException, status
+import uuid
+
+from fastapi import HTTPException, UploadFile, status
 
 ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg"}
 MAX_SIZE = 20 * 1024 * 1024  # 20MB
 UPLOAD_DIR = "uploads"
 
 def validate_file(file: UploadFile):
+    """Execute validate file operation.
+    
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+    
+        Returns:
+            Result of the operation.
+    """
     ext = file.filename.split(".")[-1].lower()
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
@@ -27,6 +37,15 @@ def validate_file(file: UploadFile):
         )
 
 def save_file(file: UploadFile, session_id: int) -> str:
+    """Execute save file operation.
+    
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+    
+        Returns:
+            Result of the operation.
+    """
     validate_file(file)
     
     session_dir = os.path.join(UPLOAD_DIR, str(session_id))

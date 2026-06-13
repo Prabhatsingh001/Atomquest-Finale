@@ -1,4 +1,4 @@
-from prometheus_client import Gauge, Counter, Histogram
+from prometheus_client import Counter, Gauge, Histogram
 
 # Initialize metrics
 ACTIVE_SESSIONS = Gauge(
@@ -33,8 +33,9 @@ def update_gauges(db_session, manager):
     Returns:
         None
     """
-    from app.modules.sessions.models import Session as DBSession, SessionStatus
     from app.modules.participants.models import Participant
+    from app.modules.sessions.models import Session as DBSession
+    from app.modules.sessions.models import SessionStatus
 
     # Active sessions
     active_count = (

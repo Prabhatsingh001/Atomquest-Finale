@@ -1,6 +1,6 @@
-from app.modules.websocket.manager import manager
-from app.modules.chat import services as chat_services
 from app.db.database import SessionLocal
+from app.modules.chat import services as chat_services
+from app.modules.websocket.manager import manager
 
 
 async def handle_message(session_id: int, user_id: int, data: dict):

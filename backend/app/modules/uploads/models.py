@@ -1,9 +1,16 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.sql import func
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from app.db.database import Base
 
+
 class File(Base):
+    """File model or schema representation.
+    
+        Attributes:
+            None specified explicitly.
+    """
     __tablename__ = "files"
 
     id = Column(Integer, primary_key=True, index=True)

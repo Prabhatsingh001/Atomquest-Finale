@@ -3,8 +3,10 @@ Message models for real-time chat in sessions.
 """
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
+
 from app.db.database import Base
 
 
@@ -37,4 +39,13 @@ class Message(Base):
     sender = relationship("app.modules.auth.models.User", backref="sent_messages")
 
     def __repr__(self):
+        """Execute repr operation.
+        
+            Args:
+                *args: Variable length argument list.
+                **kwargs: Arbitrary keyword arguments.
+        
+            Returns:
+                Result of the operation.
+        """
         return f"<Message {self.id} (Session {self.session_id})>"

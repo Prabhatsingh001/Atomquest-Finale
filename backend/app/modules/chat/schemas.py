@@ -1,11 +1,23 @@
-from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
+from pydantic import BaseModel, ConfigDict
+
+
 class MessageCreate(BaseModel):
+    """Messagecreate model or schema representation.
+    
+        Attributes:
+            None specified explicitly.
+    """
     content: str
     message_type: str = "text"
 
 class MessageResponse(BaseModel):
+    """Messageresponse model or schema representation.
+    
+        Attributes:
+            None specified explicitly.
+    """
     id: int
     session_id: int
     sender_id: int | None = None

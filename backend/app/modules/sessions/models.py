@@ -1,11 +1,13 @@
 """
 Session models for representing video call rooms.
 """
-import uuid
 import enum
+import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from app.db.database import Base
 
 
@@ -41,4 +43,13 @@ class Session(Base):
     participants = relationship("Participant", back_populates="session", cascade="all, delete-orphan")
 
     def __repr__(self):
+        """Execute repr operation.
+        
+            Args:
+                *args: Variable length argument list.
+                **kwargs: Arbitrary keyword arguments.
+        
+            Returns:
+                Result of the operation.
+        """
         return f"<Session {self.id} ({self.status})>"

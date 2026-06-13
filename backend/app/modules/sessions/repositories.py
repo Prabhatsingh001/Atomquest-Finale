@@ -3,6 +3,7 @@ Database access for Sessions.
 """
 
 from sqlalchemy.orm import Session as DbSession
+
 from app.modules.sessions.models import Session
 
 
@@ -91,6 +92,7 @@ def get_session_with_stats(db: DbSession, session_id: int):
         Session | None: The session object with populated stats, or None if not found.
     """
     from sqlalchemy.orm import joinedload
+
     from app.modules.chat.models import Message
 
     session = (

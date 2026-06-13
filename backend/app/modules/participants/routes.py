@@ -5,10 +5,10 @@ Participant API endpoints.
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session as DbSession
 
+from app.core.permissions import require_role
 from app.db.database import get_db
-from app.modules.participants import schemas, services
-from app.core.permissions import get_current_user, require_role
 from app.modules.auth.models import User
+from app.modules.participants import schemas, services
 
 router = APIRouter()
 

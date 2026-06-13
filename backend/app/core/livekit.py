@@ -7,6 +7,7 @@ and egress control. No other module should import livekit directly.
 
 import structlog
 from livekit import api
+
 from app.core.config import settings
 
 logger = structlog.get_logger()

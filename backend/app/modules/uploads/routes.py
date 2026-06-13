@@ -1,14 +1,18 @@
 import os
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File as FastAPIFile, Form
+
+from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile
+from fastapi import File as FastAPIFile
 from fastapi.responses import FileResponse as FastAPIFileResponse
 from sqlalchemy.orm import Session
-from app.db.database import get_db
+
 from app.core.permissions import get_current_user
+from app.db.database import get_db
 from app.modules.auth.models import User
-from app.modules.sessions import repositories as session_repos
 from app.modules.chat import services as chat_services
+from app.modules.sessions import repositories as session_repos
 from app.modules.websocket.manager import manager
-from . import schemas, services, repositories
+
+from . import repositories, schemas, services
 
 router = APIRouter(prefix="/uploads", tags=["Uploads"])
 

@@ -3,12 +3,13 @@ Business logic for Session management.
 """
 
 import uuid
-import structlog
-from sqlalchemy.orm import Session as DbSession
-from fastapi import HTTPException, status
 
-from app.modules.sessions import repositories
+import structlog
+from fastapi import HTTPException, status
+from sqlalchemy.orm import Session as DbSession
+
 from app.core.livekit import get_livekit
+from app.modules.sessions import repositories
 
 logger = structlog.get_logger()
 
@@ -91,6 +92,7 @@ async def end_session(db: DbSession, session_id: int, agent_id: int):
         HTTPException: If the session doesn't exist, is already completed, or the agent lacks permission.
     """
     from datetime import datetime, timezone
+
     from app.modules.websocket.manager import manager
 
     session = repositories.get_session(db, session_id)
@@ -166,6 +168,7 @@ def create_session_archive(db: DbSession, session_id: int):
     import io
     import os
     import zipfile
+
     from app.modules.chat import repositories as chat_repos
     from app.modules.uploads.services import UPLOAD_DIR
 

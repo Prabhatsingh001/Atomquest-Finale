@@ -1,16 +1,27 @@
 import uuid
-import os
-from sqlalchemy.orm import Session
+
 from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
+
 from app.core.livekit import LiveKitService
 from app.modules.sessions import repositories as session_repos
+from app.tasks.recording_tasks import monitor_egress_completion
+
 from . import repositories as recording_repos
 from .models import Recording
-from app.tasks.recording_tasks import monitor_egress_completion
 
 RECORDING_DIR = "recordings"
 
 async def start_recording(db: Session, livekit: LiveKitService, session_id: int, agent_id: int) -> Recording:
+    """Execute start recording operation.
+    
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+    
+        Returns:
+            Result of the operation.
+    """
     session = session_repos.get_session(db, session_id)
     if not session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
@@ -43,8 +54,9 @@ async def start_recording(db: Session, livekit: LiveKitService, session_id: int,
 
     # Broadcast that recording has started
     try:
-        from app.modules.websocket.manager import manager
         import asyncio
+
+        from app.modules.websocket.manager import manager
         asyncio.create_task(manager.broadcast(session_id, {
             "type": "recording_started",
             "content": "A recording has been started by the agent."
@@ -55,6 +67,15 @@ async def start_recording(db: Session, livekit: LiveKitService, session_id: int,
     return recording
 
 async def stop_recording(db: Session, livekit: LiveKitService, recording_id: int, agent_id: int) -> Recording:
+    """Execute stop recording operation.
+    
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+    
+        Returns:
+            Result of the operation.
+    """
     recording = recording_repos.get_by_id(db, recording_id)
     if not recording:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recording not found")
@@ -69,7 +90,7 @@ async def stop_recording(db: Session, livekit: LiveKitService, recording_id: int
     # Stop LiveKit Egress
     try:
         await livekit.stop_egress(recording.livekit_egress_id)
-    except Exception as e:
+    except Exception:
         # Might already be stopped or failed, proceed anyway
         pass
 

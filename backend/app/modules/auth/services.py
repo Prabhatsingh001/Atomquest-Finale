@@ -6,8 +6,8 @@ import structlog
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core.security import create_access_token, hash_password, verify_password
 from app.modules.auth import repositories
-from app.core.security import verify_password, create_access_token, hash_password
 
 logger = structlog.get_logger()
 

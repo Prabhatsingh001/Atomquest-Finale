@@ -3,13 +3,14 @@ Session API endpoints.
 """
 
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session as DbSession
 
-from app.db.database import get_db
-from app.modules.sessions import schemas, services, repositories
 from app.core.permissions import get_current_user, require_role
+from app.db.database import get_db
 from app.modules.auth.models import User
+from app.modules.sessions import repositories, schemas, services
 
 router = APIRouter()
 

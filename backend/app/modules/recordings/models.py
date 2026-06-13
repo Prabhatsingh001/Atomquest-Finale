@@ -1,16 +1,29 @@
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from app.db.database import Base
 
+
 class RecordingStatus(str, enum.Enum):
+    """Recordingstatus model or schema representation.
+    
+        Attributes:
+            None specified explicitly.
+    """
     recording = "recording"
     processing = "processing"
     ready = "ready"
     failed = "failed"
 
 class Recording(Base):
+    """Recording model or schema representation.
+    
+        Attributes:
+            None specified explicitly.
+    """
     __tablename__ = "recordings"
 
     id = Column(Integer, primary_key=True, index=True)

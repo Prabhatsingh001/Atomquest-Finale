@@ -6,9 +6,9 @@ import fastapi
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.core.permissions import get_current_user
 from app.db.database import get_db
 from app.modules.auth import schemas, services
-from app.core.permissions import get_current_user
 from app.modules.auth.models import User
 
 router = APIRouter()
@@ -58,9 +58,10 @@ def logout(
     Returns:
         dict: A status message indicating successful logout.
     """
-    from app.db.redis import redis_client
-    from app.core.security import decode_access_token
     from datetime import datetime, timezone
+
+    from app.core.security import decode_access_token
+    from app.db.redis import redis_client
 
     token = credentials.credentials
     payload = decode_access_token(token)

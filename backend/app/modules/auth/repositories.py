@@ -3,6 +3,7 @@ Database access for Users.
 """
 
 from sqlalchemy.orm import Session
+
 from app.modules.auth.models import User
 
 

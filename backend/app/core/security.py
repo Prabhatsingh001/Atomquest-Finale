@@ -2,8 +2,9 @@
 JWT security and password hashing utilities.
 """
 
-import bcrypt
 from datetime import datetime, timedelta, timezone
+
+import bcrypt
 from jose import JWTError, jwt
 
 from app.core.config import settings

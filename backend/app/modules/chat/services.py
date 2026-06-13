@@ -1,9 +1,10 @@
-from sqlalchemy.orm import Session
-from app.modules.chat import repositories
-from app.modules.sessions import repositories as session_repos
-from app.modules.participants import repositories as participant_repos
 from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.modules.chat import repositories
 from app.modules.chat.schemas import MessageResponse
+from app.modules.participants import repositories as participant_repos
+from app.modules.sessions import repositories as session_repos
 
 
 def format_message(

@@ -1,8 +1,9 @@
 """
 Structlog configuration for structured logging.
 """
-import sys
 import logging
+import sys
+
 import structlog
 
 

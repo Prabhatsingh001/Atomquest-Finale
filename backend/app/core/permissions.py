@@ -3,7 +3,7 @@ Role-based access control dependencies for FastAPI.
 """
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.security import decode_access_token
@@ -81,6 +81,15 @@ def require_role(*allowed_roles: str):
     """
 
     async def role_checker(current_user=Depends(get_current_user)):
+        """Execute role checker operation.
+        
+            Args:
+                *args: Variable length argument list.
+                **kwargs: Arbitrary keyword arguments.
+        
+            Returns:
+                Result of the operation.
+        """
         if current_user.role not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

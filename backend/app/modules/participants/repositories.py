@@ -3,6 +3,7 @@ Database access for Participants.
 """
 
 from sqlalchemy.orm import Session
+
 from app.modules.participants.models import Participant
 
 

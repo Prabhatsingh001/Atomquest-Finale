@@ -2,8 +2,10 @@
 Participant models representing users in a session.
 """
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from app.db.database import Base
 
 
@@ -33,4 +35,13 @@ class Participant(Base):
     user = relationship("app.modules.auth.models.User", backref="session_participations")
 
     def __repr__(self):
+        """Execute repr operation.
+        
+            Args:
+                *args: Variable length argument list.
+                **kwargs: Arbitrary keyword arguments.
+        
+            Returns:
+                Result of the operation.
+        """
         return f"<Participant {self.identity} (Session {self.session_id})>"

@@ -1,8 +1,10 @@
 import time
+
 import redis
 import structlog
-from app.core.config import settings
 from celery import shared_task
+
+from app.core.config import settings
 from app.db.database import SessionLocal
 from app.modules.participants import repositories as participant_repos
 

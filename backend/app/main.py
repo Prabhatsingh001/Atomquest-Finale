@@ -2,17 +2,17 @@
 AtomQuest Backend - FastAPI Application Factory
 """
 
-import structlog
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Request
-import uuid
 import time
+import uuid
+from contextlib import asynccontextmanager
+
+import structlog
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.logging_config import setup_logging
 from app.db.seed import run_seed
+from app.logging_config import setup_logging
 
 
 @asynccontextmanager
@@ -128,15 +128,15 @@ def create_app() -> FastAPI:
         return {"status": "healthy", "service": "atomquest-backend"}
 
     # Register routers
-    from app.modules.auth.routes import router as auth_router
-    from app.modules.sessions.routes import router as sessions_router
-    from app.modules.participants.routes import router as participants_router
-    from app.modules.chat.routes import router as chat_router
-    from app.modules.websocket.routes import router as websocket_router
-    from app.modules.recordings.routes import router as recordings_router
     from app.modules.admin.routes import router as admin_router
-    from app.modules.uploads.routes import router as uploads_router
+    from app.modules.auth.routes import router as auth_router
+    from app.modules.chat.routes import router as chat_router
     from app.modules.metrics.routes import router as metrics_router
+    from app.modules.participants.routes import router as participants_router
+    from app.modules.recordings.routes import router as recordings_router
+    from app.modules.sessions.routes import router as sessions_router
+    from app.modules.uploads.routes import router as uploads_router
+    from app.modules.websocket.routes import router as websocket_router
 
     app.include_router(auth_router, prefix="/api/auth", tags=["Auth"])
     app.include_router(sessions_router, prefix="/api/sessions", tags=["Sessions"])

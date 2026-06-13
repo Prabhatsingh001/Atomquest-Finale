@@ -1,9 +1,11 @@
 """
 User model for authentication and role management.
 """
-from datetime import datetime, timezone
 import enum
-from sqlalchemy import Column, Integer, String, DateTime, Enum
+from datetime import datetime, timezone
+
+from sqlalchemy import Column, DateTime, Enum, Integer, String
+
 from app.db.database import Base
 
 
@@ -26,4 +28,13 @@ class User(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
+        """Execute repr operation.
+        
+            Args:
+                *args: Variable length argument list.
+                **kwargs: Arbitrary keyword arguments.
+        
+            Returns:
+                Result of the operation.
+        """
         return f"<User {self.email} ({self.role})>"

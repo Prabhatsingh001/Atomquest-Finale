@@ -3,14 +3,15 @@ Business logic for Participants.
 """
 
 import uuid
-import structlog
-from sqlalchemy.orm import Session as DbSession
-from fastapi import HTTPException, status
 
-from app.modules.sessions import repositories as session_repos
-from app.modules.participants import repositories as participant_repos
-from app.modules.auth import repositories as auth_repos
+import structlog
+from fastapi import HTTPException
+from sqlalchemy.orm import Session as DbSession
+
 from app.core.livekit import get_livekit
+from app.modules.auth import repositories as auth_repos
+from app.modules.participants import repositories as participant_repos
+from app.modules.sessions import repositories as session_repos
 
 logger = structlog.get_logger()
 

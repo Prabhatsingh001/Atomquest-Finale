@@ -1,10 +1,12 @@
 import asyncio
+
 import structlog
 from celery import shared_task
+
+from app.core.livekit import livekit_service
 from app.db.database import SessionLocal
 from app.modules.recordings import repositories as recording_repos
 from app.modules.recordings.models import RecordingStatus
-from app.core.livekit import livekit_service
 
 logger = structlog.get_logger()
 
