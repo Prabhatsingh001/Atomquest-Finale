@@ -1,0 +1,180 @@
+"""
+LiveKit Server SDK wrapper.
+
+Centralizes all LiveKit interactions — room management, token generation,
+and egress control. No other module should import livekit directly.
+"""
+
+import structlog
+from livekit import api
+from app.core.config import settings
+
+logger = structlog.get_logger()
+
+
+class LiveKitService:
+    """Wrapper around the LiveKit Server SDK."""
+
+    def __init__(self):
+        """Initialize the LiveKitService with settings from environment variables."""
+        self.url = settings.LIVEKIT_URL.replace("ws://", "http://").replace(
+            "wss://", "https://"
+        )
+        self.api_key = settings.LIVEKIT_API_KEY
+        self.api_secret = settings.LIVEKIT_API_SECRET
+        self._api = None
+
+    def get_api(self) -> api.LiveKitAPI:
+        """Get or create the LiveKitAPI instance.
+
+        Returns:
+            api.LiveKitAPI: The initialized LiveKit API client.
+        """
+        if not self._api:
+            self._api = api.LiveKitAPI(self.url, self.api_key, self.api_secret)
+        return self._api
+
+    def generate_token(
+        self,
+        identity: str,
+        room_name: str,
+        name: str = "",
+        can_publish: bool = True,
+        can_subscribe: bool = True,
+    ) -> str:
+        """Generate a LiveKit access token for a participant.
+
+        Args:
+            identity (str): The unique identifier for the participant.
+            room_name (str): The name of the room to join.
+            name (str, optional): The display name of the participant. Defaults to "".
+            can_publish (bool, optional): Whether the participant can publish media. Defaults to True.
+            can_subscribe (bool, optional): Whether the participant can subscribe to media. Defaults to True.
+
+        Returns:
+            str: The generated JWT access token for LiveKit.
+        """
+        token = api.AccessToken(self.api_key, self.api_secret)
+        token.with_identity(identity)
+        if name:
+            token.with_name(name)
+        token.with_grants(
+            api.VideoGrants(
+                room_join=True,
+                room=room_name,
+                can_publish=can_publish,
+                can_subscribe=can_subscribe,
+            )
+        )
+        jwt_token = token.to_jwt()
+        logger.info(
+            "livekit_token_generated",
+            identity=identity,
+            room=room_name,
+        )
+        return jwt_token
+
+    async def create_room(self, room_name: str) -> dict:
+        """Create a LiveKit room via Room Service API.
+
+        Args:
+            room_name (str): The unique name of the room to create.
+
+        Returns:
+            dict: A dictionary containing the 'name' and 'sid' of the created room.
+        """
+        lkapi = self.get_api()
+        room = await lkapi.room.create_room(
+            api.CreateRoomRequest(
+                name=room_name, empty_timeout=300, max_participants=10
+            )
+        )
+        logger.info("livekit_room_created", room_name=room_name)
+        return {"name": room.name, "sid": room.sid}
+
+    async def delete_room(self, room_name: str) -> None:
+        """Delete/close a LiveKit room, disconnecting all participants.
+
+        Args:
+            room_name (str): The name of the room to delete.
+        """
+        lkapi = self.get_api()
+        await lkapi.room.delete_room(api.DeleteRoomRequest(room=room_name))
+        logger.info("livekit_room_deleted", room_name=room_name)
+
+    async def list_participants(self, room_name: str) -> list:
+        """List current participants in a LiveKit room.
+
+        Args:
+            room_name (str): The name of the room to query.
+
+        Returns:
+            list: A list of participant objects from LiveKit.
+        """
+        lkapi = self.get_api()
+        response = await lkapi.room.list_participants(
+            api.ListParticipantsRequest(room=room_name)
+        )
+        return response.participants
+
+    async def remove_participant(self, room_name: str, identity: str) -> None:
+        """Force-remove a participant from a LiveKit room.
+
+        Args:
+            room_name (str): The name of the room.
+            identity (str): The identity of the participant to remove.
+        """
+        lkapi = self.get_api()
+        await lkapi.room.remove_participant(
+            api.RoomParticipantIdentity(room=room_name, identity=identity)
+        )
+        logger.info(
+            "livekit_participant_removed",
+            room_name=room_name,
+            identity=identity,
+        )
+
+    async def start_room_composite_egress(self, room_name: str, file_path: str) -> str:
+        """Start a room composite egress recording.
+
+        Args:
+            room_name (str): The name of the room to record.
+            file_path (str): The destination file path for the recording.
+
+        Returns:
+            str: The egress ID generated by LiveKit.
+        """
+        lkapi = self.get_api()
+        req = api.RoomCompositeEgressRequest(
+            room_name=room_name, file=api.EncodedFileOutput(filepath=file_path)
+        )
+        egress_info = await lkapi.egress.start_room_composite_egress(req)
+        logger.info(
+            "livekit_egress_started",
+            room_name=room_name,
+            egress_id=egress_info.egress_id,
+        )
+        return egress_info.egress_id
+
+    async def stop_egress(self, egress_id: str) -> None:
+        """Stop an active egress recording.
+
+        Args:
+            egress_id (str): The egress ID of the recording to stop.
+        """
+        lkapi = self.get_api()
+        await lkapi.egress.stop_egress(api.StopEgressRequest(egress_id=egress_id))
+        logger.info("livekit_egress_stopped", egress_id=egress_id)
+
+
+# Singleton instance
+livekit_service = LiveKitService()
+
+
+def get_livekit() -> LiveKitService:
+    """FastAPI dependency that returns the LiveKit service.
+
+    Returns:
+        LiveKitService: The singleton LiveKitService instance.
+    """
+    return livekit_service

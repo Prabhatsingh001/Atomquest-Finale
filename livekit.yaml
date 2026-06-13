@@ -1,0 +1,12 @@
+port: 7880
+redis:
+  address: redis:6379
+rtc:
+  port_range_start: 50000
+  port_range_end: 50200
+  use_external_ip: false
+logging:
+  level: info
+room:
+  empty_timeout: 300
+  max_participants: 10

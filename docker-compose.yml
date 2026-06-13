@@ -1,0 +1,170 @@
+services:
+  # ─── Data Layer ───────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-atomquest}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-atomquest}
+      POSTGRES_DB: ${POSTGRES_DB:-atomquest}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atomquest"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─── LiveKit Media Server ─────────────────────────────────
+  livekit-server:
+    image: livekit/livekit-server:latest
+    restart: unless-stopped
+    command: --config /etc/livekit.yaml
+    ports:
+      - "7880:7880"     # HTTP/WebSocket
+      - "7881:7881"     # RTC TCP
+      - "50000-50200:50000-50200/udp"  # WebRTC UDP
+    env_file:
+      - .env
+    environment:
+      - "LIVEKIT_KEYS=${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+
+  livekit-egress:
+    image: livekit/egress:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - EGRESS_CONFIG_FILE=/etc/egress.yaml
+      - EGRESS_API_KEY=${LIVEKIT_API_KEY}
+      - EGRESS_API_SECRET=${LIVEKIT_API_SECRET}
+      - EGRESS_WS_URL=${LIVEKIT_URL}
+      - EGRESS_REDIS_ADDRESS=${REDIS_URL}
+    volumes:
+      - ./egress.yaml:/etc/egress.yaml:ro
+      - backend_recordings:/app/recordings
+    depends_on:
+      - livekit-server
+      - redis
+
+  # ─── Backend API ──────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - backend_uploads:/app/uploads
+      - backend_recordings:/app/recordings
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      livekit-server:
+        condition: service_started
+
+  # ─── Celery Worker ────────────────────────────────────────
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A app.core.celery_app worker --loglevel=info
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - backend_uploads:/app/uploads
+      - backend_recordings:/app/recordings
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ─── Frontend ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://backend:8000
+      - VITE_WS_URL=ws://backend:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  # ─── Nginx Reverse Proxy ──────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+      - livekit-server
+
+  # ─── Observability (Optional) ─────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    profiles:
+      - observability
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    profiles:
+      - observability
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_uploads:
+  backend_recordings:
+  prometheus_data:
+  grafana_data:

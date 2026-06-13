@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+mediasoup-server/node_modules/
+
+# Python
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+*.pyc
+__pycache__/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+frontend/dist/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+
+# Uploads
+backend/uploads/
+
+# Recordings
+backend/recordings/
+.pytest_cache/
+Agents/
+test.db
+

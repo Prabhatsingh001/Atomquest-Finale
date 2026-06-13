@@ -1,0 +1,43 @@
+{
+  "title": "AtomQuest Dashboard",
+  "uid": "atomquest",
+  "refresh": "10s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Active Sessions",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "atomquest_active_sessions", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "Active Participants",
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+      "targets": [{ "expr": "atomquest_active_participants", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "Total Sessions",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "targets": [{ "expr": "atomquest_sessions_total", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "WebSocket Connections",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "targets": [{ "expr": "atomquest_websocket_connections", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Sessions History",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 8 },
+      "targets": [{ "expr": "atomquest_active_sessions", "legendFormat": "Active Sessions", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "WebSocket History",
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 8 },
+      "targets": [{ "expr": "atomquest_websocket_connections", "legendFormat": "Connections", "refId": "A" }]
+    }
+  ]
+}
